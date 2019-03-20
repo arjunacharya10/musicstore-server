@@ -25,12 +25,15 @@ app.get('/',(req,res)=>{
 
 
 app.post('/register',(req,res)=>{
+    
     const body = req.body;
+    const img = 'https://api.adorable.io/avatars/285/'+body.name;
     var hash = bc.hashSync(body.password,saltRounds);
     db('Users').insert({
         EMAIL: body.email,
         NAME: body.name,
-        PASSWORD: hash
+        PASSWORD: hash,
+        AVATAR: img
     }).then(result =>{
         res.json('success');
     })
@@ -41,18 +44,24 @@ app.post('/register',(req,res)=>{
 
 app.post('/signin',(req,res)=>{
     body = req.body;
-    db.select('*').from('Users').where('EMAIL','=',body.email)
+    console.log(body);
+    db.select('NAME','EMAIL','AVATAR','PASSWORD').from('Users').where('EMAIL','=',body.email)
     .then(user =>{
+        console.log(user);
         if(bc.compareSync(body.password, user[0].PASSWORD)){
-            res.status(400).json('success');
+            res.json({
+                status: 'success',
+                name:user[0].NAME,
+                email: user[0].EMAIL,
+                avatar: user[0].AVATAR
+            });
         }
         else{
-            res.json('faile2')
+            res.status(400).json({status: 'faile2'});
         }
     })
     .catch(err=>{
-        console.log(err);
-        res.json(400).json('failed1');
+        res.status(400).json({status: 'failed1'});
     })
 });
 

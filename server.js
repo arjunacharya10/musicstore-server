@@ -43,7 +43,7 @@ app.post('/register',(req,res)=>{
 });
 
 app.post('/signin',(req,res)=>{
-    body = req.body;
+    const body = req.body;
     console.log(body);
     db.select('NAME','EMAIL','AVATAR','PASSWORD').from('Users').where('EMAIL','=',body.email)
     .then(user =>{
@@ -64,6 +64,24 @@ app.post('/signin',(req,res)=>{
         res.status(400).json({status: 'failed1'});
     })
 });
+
+app.post('/purchase',(req,res)=>{
+    const body = req.body;
+    db('Purchased').insert({
+        trackName: body.trackName,
+        link: body.link,
+        image: body.image,
+        artistNames: body.artistNames,
+        songid: body.id
+    })
+    .then(res=>{
+
+    res.json('success'); 
+    })
+    .catch(err=>{
+        res.json(err);
+    })
+})
 
 
 

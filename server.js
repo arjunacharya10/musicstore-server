@@ -45,11 +45,12 @@ app.post('/register',(req,res)=>{
 app.post('/signin',(req,res)=>{
     const body = req.body;
     console.log(body);
-    db.select('NAME','EMAIL','AVATAR','PASSWORD').from('Users').where('EMAIL','=',body.email)
+    db.select('ID','NAME','EMAIL','AVATAR','PASSWORD').from('Users').where('EMAIL','=',body.email)
     .then(user =>{
         console.log(user);
         if(bc.compareSync(body.password, user[0].PASSWORD)){
             res.json({
+                id: user[0].ID,
                 status: 'success',
                 name:user[0].NAME,
                 email: user[0].EMAIL,
@@ -67,20 +68,90 @@ app.post('/signin',(req,res)=>{
 
 app.post('/purchase',(req,res)=>{
     const body = req.body;
-    db('Purchased').insert({
-        trackName: body.trackName,
-        link: body.link,
-        image: body.image,
-        artistNames: body.artistNames,
-        songid: body.id
+    console.log(body);
+    db('Songs').insert({
+        sid: body.song.id,
+        name: body.song.trackName,
+        link: body.song.link,
+        image: body.song.image,
     })
-    .then(res=>{
+    .then(resp1=>{
 
-    res.json('success'); 
+        db('Buys').insert({
+            uid: body.user.id,
+            sid: body.song.id 
+        })
+        .then(resp2=>{
+            name="";
+            body.song.artistNames.forEach(artist=>{
+                db('Artists').insert({
+                    sid: body.song.id,
+                    name: artist.name
+                })
+                .then(resp3=>{
+                    console.log("Success");
+                })
+                .catch(err=>{
+                    console.log(err);
+                })
+            });
+        })
+        .catch(err=>{
+            console.log('error is');
+            console.log(err);
+            res.status(400).json('Already purchased');
+        })
+    })
+    .catch(err=>{
+        db('Buys').insert({
+            uid: body.user.id,
+            sid: body.song.id 
+        })
+        .then(resp2=>{
+            console.log('Worked here!!');
+            res.json('Success');
+        })
+        .catch(err=>{
+            console.log('error is');
+            console.log(err);
+            res.status(400).json('Already Purchased');
+        })
+    })
+})
+
+app.post('/playlist-create',(req,res)=>{
+    body = req.body;
+    db('Playlist').insert({
+        uid: body.id,
+        name: body.name,
+        image: body.image
+    })
+    .then(result=>{
+        res.json(result);
     })
     .catch(err=>{
         res.json(err);
-    })
+    });
+})
+
+app.post('/send-purchased',(req,res)=>{
+    body = req.body;
+    db.select('sid').from('Buys').where('uid','=',body.id)
+    .then(sids=>{
+        var songs = new Array();
+        sids.forEach(sid=>{
+            console.log(sid.sid);
+            db.select('*').from('Songs').where('sid','=',sid.sid)
+            .then(resp=>{
+                songs.push(resp[0]);
+                console.log(songs);
+            })
+            .catch(err=>{
+                console.log('failed!!!!!');
+            })
+        })
+        res.json('success');
+    });
 })
 
 

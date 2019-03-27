@@ -135,8 +135,9 @@ app.post('/playlist-create',(req,res)=>{
 
 app.post('/send-purchased',(req,res)=>{
     body = req.body;
-    db.from('Buys').innerJoin('Songs','Buys.sid','Songs.sid').innerJoin('Artists','Songs.sid','Artists.sid').where('uid','=',body.id)
+    db.from('Buys').innerJoin('Songs','Buys.sid','Songs.sid').innerJoin('Artists','Songs.sid','Artists.sid').where('Buys.uid','=',body.id)
     .then(resp=>{
+        console.log(resp);
         res.json(resp);
     })
     .catch(err=>{

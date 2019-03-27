@@ -71,7 +71,7 @@ app.post('/purchase',(req,res)=>{
     console.log(body);
     db('Songs').insert({
         sid: body.song.id,
-        name: body.song.trackName,
+        sname: body.song.trackName,
         link: body.song.link,
         image: body.song.image,
     })
@@ -89,7 +89,7 @@ app.post('/purchase',(req,res)=>{
                     name: artist.name
                 })
                 .then(resp3=>{
-                    console.log("Success");
+                    res.json('success');
                 })
                 .catch(err=>{
                     console.log(err);
@@ -99,22 +99,21 @@ app.post('/purchase',(req,res)=>{
         .catch(err=>{
             console.log('error is');
             console.log(err);
-            res.status(400).json('Already purchased');
+            res.json('Already purchased');
         })
     })
     .catch(err=>{
+        console.log(err);
         db('Buys').insert({
             uid: body.user.id,
             sid: body.song.id 
         })
         .then(resp2=>{
-            console.log('Worked here!!');
-            res.json('Success');
+            console.log("Success!!!");
+            res.json('Success!!')
         })
         .catch(err=>{
-            console.log('error is');
-            console.log(err);
-            res.status(400).json('Already Purchased');
+            res.status(400).json('Already Bought..');
         })
     })
 })
@@ -130,27 +129,18 @@ app.post('/playlist-create',(req,res)=>{
         res.json(result);
     })
     .catch(err=>{
-        res.json(err);
+        res.status(400).json(err);
     });
 })
 
 app.post('/send-purchased',(req,res)=>{
     body = req.body;
-    db.select('sid').from('Buys').where('uid','=',body.id)
-    .then(sids=>{
-        var songs = new Array();
-        sids.forEach(sid=>{
-            console.log(sid.sid);
-            db.select('*').from('Songs').where('sid','=',sid.sid)
-            .then(resp=>{
-                songs.push(resp[0]);
-                console.log(songs);
-            })
-            .catch(err=>{
-                console.log('failed!!!!!');
-            })
-        })
-        res.json('success');
+    db.from('Buys').innerJoin('Songs','Buys.sid','Songs.sid').innerJoin('Artists','Songs.sid','Artists.sid').where('uid','=',body.id)
+    .then(resp=>{
+        res.json(resp);
+    })
+    .catch(err=>{
+        res.json('failed')
     });
 })
 
@@ -158,7 +148,7 @@ app.post('/send-purchased',(req,res)=>{
 
 app.listen(process.env.PORT||3000,()=>{
     console.log(`app is running on port ${process.env.PORT}`);
-});
+})
 
 
 

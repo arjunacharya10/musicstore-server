@@ -145,6 +145,48 @@ app.post('/send-purchased',(req,res)=>{
     });
 })
 
+app.post('/create-playlist',(req,res)=>{
+    var {name,id}=req.body;
+    db('Playlist').insert({
+        uid: id,
+        name: name
+    })
+    .then(resp=>{
+        db.select('*').from('Playlist').where('uid','=',id)
+        .then(playlists=>{
+            res.json(playlists);
+        })
+        .catch(err=>{
+            res.status(400).json(err);
+        })
+    })
+    .catch(err=>{
+        res.status(400).json(err);
+    });
+
+})
+
+app.post('/get-playlist',(req,res)=>{
+    db.select('*').from('Playlist').where('uid','=',req.body.id)
+    .then(data=>{
+        res.json(data);
+    })
+    .catch(err=>{
+        res.status(400).json(err);
+    })
+})
+
+app.post('/delete-playlist',(req,res)=>{
+    db('Playlist').where(req.body).del()
+    .then(resp=>{
+        res.json('success');
+    })
+    .then(err=>{
+        console.log("Here error!!!");
+        res.status(400).json(err);
+    })
+})  
+
 
 
 app.listen(process.env.PORT||3000,()=>{

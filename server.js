@@ -185,7 +185,39 @@ app.post('/delete-playlist',(req,res)=>{
         console.log("Here error!!!");
         res.status(400).json(err);
     })
-})  
+})
+
+app.post('/add-to-playlist',(req,res)=>{
+    var body = req.body;
+    db('MadeOf').insert(body)
+    .then(resp=>{
+        res.json('success');
+    })
+    .catch(err=>{
+        res.status(400).json(err);
+    })
+})
+
+app.post('/get-songs',(req,res)=>{
+    var body = req.body;
+    db.select('*').from('Playlist').innerJoin('MadeOf','Playlist.pid','MadeOf.pid').innerJoin('Songs','Songs.sid','MadeOf.sid').innerJoin('Artists','Artists.sid','Songs.sid').where('Playlist.pid','=',body.pid,'AND','Playlist.uid','=',body.uid)
+    .then(data=>{
+        res.json(data);
+    })
+    .catch(err=>{
+        res.status(400).json(err);
+    })
+})
+
+app.post('/update-image',(req,res)=>{
+    db('Playlist').where('pid','=',req.body.pid,'AND','uid','=',req.body.uid).update({image:req.body.link})
+    .then(resp=>{
+        res.json('success');
+    })
+    .catch(err=>{
+        res.status(400).json(err);
+    })
+})
 
 
 

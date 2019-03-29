@@ -219,6 +219,16 @@ app.post('/update-image',(req,res)=>{
     })
 })
 
+app.post('/delete-from-playlist',(req,res)=>{
+    db('MadeOf').where(req.body).del()
+    .then(resp=>{
+        res.json(resp);
+    })
+    .catch(err=>{
+        res.json(err);
+    })
+})
+
 
 
 app.listen(process.env.PORT||3000,()=>{

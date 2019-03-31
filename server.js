@@ -229,16 +229,122 @@ app.post('/delete-from-playlist',(req,res)=>{
     })
 })
 
-app.post('/get-all-users',(req,res)=>{
+app.post('/users',(req,res)=>{
     const body = req.body;
+    console.log(body);
     db.select('*').from('Users').whereNot({
         ID:body.id
     })
     .then(resp=>{
-        res.json(resp.data);
+        res.json(resp);
     })
     .catch(err=>{
         res.status(400).json(err);
+    })
+})
+
+
+app.post('/follow',(req,res)=>{
+    const body = req.body;
+    console.log(body);
+    db('Follows').insert({
+        uid:body.uid,
+        fid:body.fid
+    })
+    .then(resp=>{
+        db.select('fid').from('Follows').where('uid','=',body.uid)
+        .then(following=>{
+            console.log(following);
+            db.select('uid').from('Follows').where({
+                fid:body.uid
+            })
+            .then(followers=>{
+                const finga = following.map(user=>{
+                    return(user.fid);
+                });
+                const fersa = followers.map(user=>{
+                    return(user.uid);
+                });
+                res.json({
+                    fing:finga,
+                    fers: fersa
+                });
+            })
+            .catch(err=>{
+                console.log(err);
+            })
+        })
+        .catch(err=>{
+            console.log(err);
+        })
+    })
+    .catch(err=>{
+        console.log(err);
+    })
+})
+
+
+app.post('/un-follow',(req,res)=>{
+    const body = req.body;
+    console.log(body);
+    db('Follows').where({
+        uid:body.uid,
+        fid:body.fid
+    }).del()
+    .then(resp=>{
+        db.select('fid').from('Follows').where('uid','=',body.uid)
+        .then(following=>{
+            console.log(following);
+            db.select('uid').from('Follows').where({
+                fid:body.uid
+            })
+            .then(followers=>{
+                const finga = following.map(user=>{
+                    return(user.fid);
+                });
+                const fersa = followers.map(user=>{
+                    return(user.uid);
+                });
+                res.json({
+                    fing:finga,
+                    fers: fersa
+                });
+            })
+            .catch(err=>{
+                console.log(err);
+            })
+        })
+        .catch(err=>{
+            console.log(err);
+        })
+    })
+    .catch(err=>{
+        console.log(err);
+    })
+})
+
+app.post('/get-following',(req,res)=>{
+    db.select('fid').from('Follows').where({uid:req.body.uid})
+    .then(fingIds=>{
+        db.select('uid').from('Follows').where({fid:req.body.uid})
+        .then(fersId=>{
+            const finga = fingIds.map(user=>{
+                return(user.fid);
+            });
+            const fersa = fersId.map(user=>{
+                return(user.uid);
+            });
+            res.json({
+                fing: finga,
+                fers : fersa
+            })
+        })
+        .catch(err=>{
+            console.log(err);
+        })
+    })
+    .catch(err=>{
+        res.status(err).json(err);
     })
 })
 

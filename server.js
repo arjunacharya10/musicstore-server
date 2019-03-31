@@ -229,6 +229,19 @@ app.post('/delete-from-playlist',(req,res)=>{
     })
 })
 
+app.post('/get-all-users',(req,res)=>{
+    const body = req.body;
+    db.select('*').from('Users').whereNot({
+        ID:body.id
+    })
+    .then(resp=>{
+        res.json(resp.data);
+    })
+    .catch(err=>{
+        res.status(400).json(err);
+    })
+})
+
 
 
 app.listen(process.env.PORT||3000,()=>{

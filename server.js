@@ -27,13 +27,12 @@ app.get('/',(req,res)=>{
 app.post('/register',(req,res)=>{
     
     const body = req.body;
-    const img = 'https://api.adorable.io/avatars/285/'+body.name;
     var hash = bc.hashSync(body.password,saltRounds);
     db('Users').insert({
         EMAIL: body.email,
         NAME: body.name,
         PASSWORD: hash,
-        AVATAR: img
+        AVATAR: body.avatar
     }).then(result =>{
         res.json('success');
     })
@@ -41,6 +40,23 @@ app.post('/register',(req,res)=>{
         res.status(400).json(err.sqlMessage);
     })
 });
+
+
+app.post('/google-register',(req,res)=>{
+    const body = req.body;
+    var hash = bc.hashSync(body.password,saltRounds);
+    db('Users').insert({
+        EMAIL: body.email,
+        NAME: body.name,
+        PASSWORD: hash,
+        AVATAR: body.avatar
+    }).then(result =>{
+        res.json('success');
+    })
+    .catch(err =>{
+        res.json('success');
+    })
+})
 
 app.post('/signin',(req,res)=>{
     const body = req.body;

@@ -365,6 +365,18 @@ app.post('/get-following',(req,res)=>{
 })
 
 
+app.post('/get-follower-songs',(req,res)=>{
+    console.log(req.body.uid);
+    db.select('*').from('Follows').where('Follows.uid','=',req.body.uid).innerJoin('Buys','Follows.fid','Buys.uid').innerJoin('Songs','Buys.sid','Songs.sid')
+    .then(resp=>{
+        res.json(resp);
+    })
+    .catch(err=>{
+        res.status(400).json(err);
+    })
+})
+
+
 
 app.listen(process.env.PORT||3000,()=>{
     console.log(`app is running on port ${process.env.PORT}`);

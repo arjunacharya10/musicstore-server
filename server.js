@@ -9,8 +9,8 @@ const db = require('knex')({
     client: 'mysql',
     connection: {
         host: 'localhost',
-        user: 'arjun',
-        password: 'Kamalakshi1998',
+        user: 'root',
+        password: 'root',
         database: 'musicstore'
     }
 });

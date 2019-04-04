@@ -44,6 +44,7 @@ app.post('/register',(req,res)=>{
 
 app.post('/google-register',(req,res)=>{
     const body = req.body;
+    console.log(body);
     var hash = bc.hashSync(body.password,saltRounds);
     db('Users').insert({
         EMAIL: body.email,
@@ -51,10 +52,29 @@ app.post('/google-register',(req,res)=>{
         PASSWORD: hash,
         AVATAR: body.avatar
     }).then(result =>{
-        res.json('success');
+        db.select('ID','NAME','EMAIL','AVATAR').from('Users').where('EMAIL','=',body.email)
+        .then(user=>{
+            res.json({
+                id: user[0].ID,
+                status: 'success',
+                name:user[0].NAME,
+                email: user[0].EMAIL,
+                avatar: user[0].AVATAR
+            });
+        })
     })
     .catch(err =>{
-        res.json('success');
+        console.log(err);
+        db.select('ID','NAME','EMAIL','AVATAR').from('Users').where('EMAIL','=',body.email)
+        .then(user=>{
+            res.json({
+                id: user[0].ID,
+                status: 'success',
+                name:user[0].NAME,
+                email: user[0].EMAIL,
+                avatar: user[0].AVATAR
+            });
+        })
     })
 })
 
@@ -365,9 +385,20 @@ app.post('/get-following',(req,res)=>{
 })
 
 
+app.post('/get-name',(req,res)=>{
+    db.select('NAME','ID','AVATAR').from('Users').innerJoin('Follows','ID','Follows.fid').where({uid:req.body.uid})
+    .then(data=>{
+        res.json(data)
+    })
+    .catch(err=>{
+        res.json(err);
+    })
+})
+
+
 app.post('/get-follower-songs',(req,res)=>{
     console.log(req.body.uid);
-    db.select('*').from('Follows').where('Follows.uid','=',req.body.uid).innerJoin('Buys','Follows.fid','Buys.uid').innerJoin('Songs','Buys.sid','Songs.sid')
+    db.select('*').from('Follows').where('Follows.fid','=',req.body.fid,'AND','Follows.uid','=',req.body.uid).innerJoin('Playlist','Follows.fid','Playlist.uid').where('Playlist.name','=','My Story').innerJoin('MadeOf','Playlist.pid','MadeOf.pid').innerJoin('Songs','MadeOf.sid','Songs.sid').innerJoin('Artists','Songs.sid','Artists.sid')
     .then(resp=>{
         res.json(resp);
     })

@@ -408,6 +408,17 @@ app.post('/get-follower-songs',(req,res)=>{
 })
 
 
+app.post('/feedback',(req,res)=>{
+    db('Feedback').insert(req.body)
+    .then(resp=>{
+        res.json('success');
+    })
+    .catch(err=>{
+        res.status(400).json(err);
+    })
+})
+
+
 
 app.listen(process.env.PORT||3000,()=>{
     console.log(`app is running on port ${process.env.PORT}`);

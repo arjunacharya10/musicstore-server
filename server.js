@@ -418,6 +418,31 @@ app.post('/feedback',(req,res)=>{
     })
 })
 
+app.post('/admin',(req,res)=>{
+    const body = req.body;
+    console.log(body);
+    db.select('*').from('Admin').where('email','=',body.email)
+    .then(user =>{
+        console.log(user);
+        if(body.password===user[0].password){
+            res.json("success!");
+        }
+        else{
+            res.status(400).json({status: 'faile2'});
+        }
+    })
+    .catch(err=>{
+        res.status(400).json({status: 'failed1'});
+    })
+})
+
+app.get('/allsongs',(req,res)=>{
+    db.select('*').from('Songs')
+    .then(songs=>{
+        res.json(songs);
+    })
+})
+
 
 
 app.listen(process.env.PORT||3000,()=>{

@@ -18,7 +18,7 @@ app.use(cors());
 
 
 app.get('/',(req,res)=>{
-    res.json('Its Working!');
+ 	db.select('*').from('users').then(users=>{res.json(users)});
 });
 
 

@@ -267,7 +267,7 @@ app.post('/users',(req,res)=>{
     const body = req.body;
     console.log(body);
     db.select('*').from('users').whereNot({
-        ID:body.id
+        id:body.id
     })
     .then(resp=>{
         res.json(resp);

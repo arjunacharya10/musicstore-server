@@ -96,7 +96,7 @@ app.post('/signin',(req,res)=>{
         }
     })
     .catch(err=>{
-        res.status(400).json({status: 'failed1'});
+        res.status(400).json(err);
     })
 });
 

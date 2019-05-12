@@ -50,7 +50,7 @@ app.post('/google-register',(req,res)=>{
         PASSWORD: hash,
         AVATAR: body.avatar
     }).then(result =>{
-        db.select('ID','NAME','EMAIL','AVATAR').from('Users').where('EMAIL','=',body.email)
+        db.select('ID','NAME','EMAIL','AVATAR').from('users').where('EMAIL','=',body.email)
         .then(user=>{
             res.json({
                 id: user[0].ID,
@@ -63,7 +63,7 @@ app.post('/google-register',(req,res)=>{
     })
     .catch(err =>{
         console.log(err);
-        db.select('ID','NAME','EMAIL','AVATAR').from('Users').where('EMAIL','=',body.email)
+        db.select('ID','NAME','EMAIL','AVATAR').from('users').where('EMAIL','=',body.email)
         .then(user=>{
             res.json({
                 id: user[0].ID,
@@ -79,7 +79,7 @@ app.post('/google-register',(req,res)=>{
 app.post('/signin',(req,res)=>{
     const body = req.body;
     console.log(body);
-    db.select('ID','NAME','EMAIL','AVATAR','PASSWORD').from('Users').where('EMAIL','=',body.email)
+    db.select('ID','NAME','EMAIL','AVATAR','PASSWORD').from('users').where('EMAIL','=',body.email)
     .then(user =>{
         console.log(user);
         if(bc.compareSync(body.password, user[0].PASSWORD)){

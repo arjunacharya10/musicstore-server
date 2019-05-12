@@ -384,7 +384,7 @@ app.post('/get-following',(req,res)=>{
 
 
 app.post('/get-name',(req,res)=>{
-    db.select('NAME','ID','AVATAR').from('users').innerJoin('follows','ID','follows.fid').where({uid:req.body.uid})
+    db.select('name','id','avatar').from('users').innerJoin('follows','id','follows.fid').where({uid:req.body.uid})
     .then(data=>{
         res.json(data)
     })

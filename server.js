@@ -5,15 +5,13 @@ const bp = require('body-parser');
 const bc = require('bcrypt');
 const cors = require('cors');
 
-const db = require('knex')({
-    client: 'mysql',
+var db = require('knex')({
+    client: 'pg',
     connection: {
-        host: 'localhost',
-        user: 'root',
-        password: 'root',
-        database: 'musicstore'
+       connectionString : process.env.DATABASE_URL,
+      ssl: true
     }
-});
+  });
 
 app.use(bp.json());
 app.use(cors());

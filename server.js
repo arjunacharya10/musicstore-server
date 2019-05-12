@@ -26,7 +26,7 @@ app.post('/register',(req,res)=>{
     
     const body = req.body;
     var hash = bc.hashSync(body.password,saltRounds);
-    db('Users').insert({
+    db('users').insert({
         EMAIL: body.email,
         NAME: body.name,
         PASSWORD: hash,
@@ -44,13 +44,13 @@ app.post('/google-register',(req,res)=>{
     const body = req.body;
     console.log(body);
     var hash = bc.hashSync(body.password,saltRounds);
-    db('Users').insert({
-        EMAIL: body.email,
-        NAME: body.name,
-        PASSWORD: hash,
-        AVATAR: body.avatar
+    db('users').insert({
+        email: body.email,
+        name: body.name,
+        password: hash,
+        avatar: body.avatar
     }).then(result =>{
-        db.select('ID','NAME','EMAIL','AVATAR').from('users').where('EMAIL','=',body.email)
+        db.select('id','name','email','avatar').from('users').where('email','=',body.email)
         .then(user=>{
             res.json({
                 id: user[0].ID,
@@ -63,7 +63,7 @@ app.post('/google-register',(req,res)=>{
     })
     .catch(err =>{
         console.log(err);
-        db.select('ID','NAME','EMAIL','AVATAR').from('users').where('EMAIL','=',body.email)
+        db.select('id','name','email','avatar').from('users').where('email','=',body.email)
         .then(user=>{
             res.json({
                 id: user[0].ID,
@@ -79,7 +79,7 @@ app.post('/google-register',(req,res)=>{
 app.post('/signin',(req,res)=>{
     const body = req.body;
     console.log(body);
-    db.select('ID','NAME','EMAIL','AVATAR','PASSWORD').from('users').where('EMAIL','=',body.email)
+    db.select('id','name','email','avatar','password').from('users').where('email','=',body.email)
     .then(user =>{
         console.log(user);
         if(bc.compareSync(body.password, user[0].PASSWORD)){
@@ -103,7 +103,7 @@ app.post('/signin',(req,res)=>{
 app.post('/purchase',(req,res)=>{
     const body = req.body;
     console.log(body);
-    db('Songs').insert({
+    db('songs').insert({
         sid: body.song.id,
         sname: body.song.trackName,
         link: body.song.link,
@@ -111,14 +111,14 @@ app.post('/purchase',(req,res)=>{
     })
     .then(resp1=>{
 
-        db('Buys').insert({
+        db('buys').insert({
             uid: body.user.id,
             sid: body.song.id 
         })
         .then(resp2=>{
             name="";
             body.song.artistNames.forEach(artist=>{
-                db('Artists').insert({
+                db('artists').insert({
                     sid: body.song.id,
                     name: artist.name
                 })
@@ -138,7 +138,7 @@ app.post('/purchase',(req,res)=>{
     })
     .catch(err=>{
         console.log(err);
-        db('Buys').insert({
+        db('buys').insert({
             uid: body.user.id,
             sid: body.song.id 
         })
@@ -154,7 +154,7 @@ app.post('/purchase',(req,res)=>{
 
 app.post('/playlist-create',(req,res)=>{
     body = req.body;
-    db('Playlist').insert({
+    db('playlist').insert({
         uid: body.id,
         name: body.name,
         image: body.image
@@ -169,7 +169,7 @@ app.post('/playlist-create',(req,res)=>{
 
 app.post('/send-purchased',(req,res)=>{
     body = req.body;
-    db.from('Buys').innerJoin('Songs','Buys.sid','Songs.sid').innerJoin('Artists','Songs.sid','Artists.sid').where('Buys.uid','=',body.id)
+    db.from('buys').innerJoin('songs','buys.sid','songs.sid').innerJoin('artists','songs.sid','artists.sid').where('buys.uid','=',body.id)
     .then(resp=>{
         console.log(resp);
         res.json(resp);
@@ -181,12 +181,12 @@ app.post('/send-purchased',(req,res)=>{
 
 app.post('/create-playlist',(req,res)=>{
     var {name,id}=req.body;
-    db('Playlist').insert({
+    db('playlist').insert({
         uid: id,
         name: name
     })
     .then(resp=>{
-        db.select('*').from('Playlist').where('uid','=',id)
+        db.select('*').from('playlist').where('uid','=',id)
         .then(playlists=>{
             res.json(playlists);
         })
@@ -201,7 +201,7 @@ app.post('/create-playlist',(req,res)=>{
 })
 
 app.post('/get-playlist',(req,res)=>{
-    db.select('*').from('Playlist').where('uid','=',req.body.id)
+    db.select('*').from('playlist').where('uid','=',req.body.id)
     .then(data=>{
         res.json(data);
     })
@@ -211,7 +211,7 @@ app.post('/get-playlist',(req,res)=>{
 })
 
 app.post('/delete-playlist',(req,res)=>{
-    db('Playlist').where(req.body).del()
+    db('playlist').where(req.body).del()
     .then(resp=>{
         res.json('success');
     })
@@ -223,7 +223,7 @@ app.post('/delete-playlist',(req,res)=>{
 
 app.post('/add-to-playlist',(req,res)=>{
     var body = req.body;
-    db('MadeOf').insert(body)
+    db('madeof').insert(body)
     .then(resp=>{
         res.json('success');
     })
@@ -234,7 +234,7 @@ app.post('/add-to-playlist',(req,res)=>{
 
 app.post('/get-songs',(req,res)=>{
     var body = req.body;
-    db.select('*').from('Playlist').innerJoin('MadeOf','Playlist.pid','MadeOf.pid').innerJoin('Songs','Songs.sid','MadeOf.sid').innerJoin('Artists','Artists.sid','Songs.sid').where('Playlist.pid','=',body.pid,'AND','Playlist.uid','=',body.uid)
+    db.select('*').from('playlist').innerJoin('madeof','playlist.pid','madeof.pid').innerJoin('songs','songs.sid','madeof.sid').innerJoin('artists','artists.sid','songs.sid').where('playlist.pid','=',body.pid,'AND','playlist.uid','=',body.uid)
     .then(data=>{
         res.json(data);
     })
@@ -244,7 +244,7 @@ app.post('/get-songs',(req,res)=>{
 })
 
 app.post('/update-image',(req,res)=>{
-    db('Playlist').where('pid','=',req.body.pid,'AND','uid','=',req.body.uid).update({image:req.body.link})
+    db('playlist').where('pid','=',req.body.pid,'AND','uid','=',req.body.uid).update({image:req.body.link})
     .then(resp=>{
         res.json('success');
     })
@@ -254,7 +254,7 @@ app.post('/update-image',(req,res)=>{
 })
 
 app.post('/delete-from-playlist',(req,res)=>{
-    db('MadeOf').where(req.body).del()
+    db('madeof').where(req.body).del()
     .then(resp=>{
         res.json(resp);
     })
@@ -266,7 +266,7 @@ app.post('/delete-from-playlist',(req,res)=>{
 app.post('/users',(req,res)=>{
     const body = req.body;
     console.log(body);
-    db.select('*').from('Users').whereNot({
+    db.select('*').from('users').whereNot({
         ID:body.id
     })
     .then(resp=>{
@@ -281,15 +281,15 @@ app.post('/users',(req,res)=>{
 app.post('/follow',(req,res)=>{
     const body = req.body;
     console.log(body);
-    db('Follows').insert({
+    db('follows').insert({
         uid:body.uid,
         fid:body.fid
     })
     .then(resp=>{
-        db.select('fid').from('Follows').where('uid','=',body.uid)
+        db.select('fid').from('follows').where('uid','=',body.uid)
         .then(following=>{
             console.log(following);
-            db.select('uid').from('Follows').where({
+            db.select('uid').from('follows').where({
                 fid:body.uid
             })
             .then(followers=>{
@@ -321,15 +321,15 @@ app.post('/follow',(req,res)=>{
 app.post('/un-follow',(req,res)=>{
     const body = req.body;
     console.log(body);
-    db('Follows').where({
+    db('follows').where({
         uid:body.uid,
         fid:body.fid
     }).del()
     .then(resp=>{
-        db.select('fid').from('Follows').where('uid','=',body.uid)
+        db.select('fid').from('follows').where('uid','=',body.uid)
         .then(following=>{
             console.log(following);
-            db.select('uid').from('Follows').where({
+            db.select('uid').from('follows').where({
                 fid:body.uid
             })
             .then(followers=>{
@@ -358,9 +358,9 @@ app.post('/un-follow',(req,res)=>{
 })
 
 app.post('/get-following',(req,res)=>{
-    db.select('fid').from('Follows').where({uid:req.body.uid})
+    db.select('fid').from('follows').where({uid:req.body.uid})
     .then(fingIds=>{
-        db.select('uid').from('Follows').where({fid:req.body.uid})
+        db.select('uid').from('follows').where({fid:req.body.uid})
         .then(fersId=>{
             const finga = fingIds.map(user=>{
                 return(user.fid);
@@ -384,7 +384,7 @@ app.post('/get-following',(req,res)=>{
 
 
 app.post('/get-name',(req,res)=>{
-    db.select('NAME','ID','AVATAR').from('Users').innerJoin('Follows','ID','Follows.fid').where({uid:req.body.uid})
+    db.select('NAME','ID','AVATAR').from('users').innerJoin('follows','ID','follows.fid').where({uid:req.body.uid})
     .then(data=>{
         res.json(data)
     })
@@ -396,7 +396,7 @@ app.post('/get-name',(req,res)=>{
 
 app.post('/get-follower-songs',(req,res)=>{
     console.log(req.body.uid);
-    db.select('*').from('Follows').where('Follows.fid','=',req.body.fid,'AND','Follows.uid','=',req.body.uid).innerJoin('Playlist','Follows.fid','Playlist.uid').where('Playlist.name','=','My Story').innerJoin('MadeOf','Playlist.pid','MadeOf.pid').innerJoin('Songs','MadeOf.sid','Songs.sid').innerJoin('Artists','Songs.sid','Artists.sid')
+    db.select('*').from('follows').where('follows.fid','=',req.body.fid,'AND','follows.uid','=',req.body.uid).innerJoin('playlist','follows.fid','playlist.uid').where('playlist.name','=','My Story').innerJoin('madeof','playlist.pid','madeof.pid').innerJoin('songs','madeof.sid','songs.sid').innerJoin('artists','songs.sid','artists.sid')
     .then(resp=>{
         res.json(resp);
     })
@@ -407,7 +407,7 @@ app.post('/get-follower-songs',(req,res)=>{
 
 
 app.post('/feedback',(req,res)=>{
-    db('Feedback').insert(req.body)
+    db('feedback').insert(req.body)
     .then(resp=>{
         res.json('success');
     })
@@ -435,7 +435,7 @@ app.post('/admin',(req,res)=>{
 })
 
 app.get('/allsongs',(req,res)=>{
-    db.select('*').from('Songs')
+    db.select('*').from('songs')
     .then(songs=>{
         res.json(songs);
     })

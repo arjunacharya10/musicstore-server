@@ -27,10 +27,10 @@ app.post('/register',(req,res)=>{
     const body = req.body;
     var hash = bc.hashSync(body.password,saltRounds);
     db('users').insert({
-        EMAIL: body.email,
-        NAME: body.name,
-        PASSWORD: hash,
-        AVATAR: body.avatar
+        email: body.email,
+        name: body.name,
+        password: hash,
+        avatar: body.avatar
     }).then(result =>{
         res.json('success');
     })
@@ -53,11 +53,11 @@ app.post('/google-register',(req,res)=>{
         db.select('id','name','email','avatar').from('users').where('email','=',body.email)
         .then(user=>{
             res.json({
-                id: user[0].ID,
+                id: user[0].id,
                 status: 'success',
-                name:user[0].NAME,
-                email: user[0].EMAIL,
-                avatar: user[0].AVATAR
+                name:user[0].name,
+                email: user[0].email,
+                avatar: user[0].avatar
             });
         })
     })
@@ -66,11 +66,11 @@ app.post('/google-register',(req,res)=>{
         db.select('id','name','email','avatar').from('users').where('email','=',body.email)
         .then(user=>{
             res.json({
-                id: user[0].ID,
+                id: user[0].id,
                 status: 'success',
-                name:user[0].NAME,
-                email: user[0].EMAIL,
-                avatar: user[0].AVATAR
+                name:user[0].name,
+                email: user[0].email,
+                avatar: user[0].avatar
             });
         })
     })
@@ -82,13 +82,13 @@ app.post('/signin',(req,res)=>{
     db.select('id','name','email','avatar','password').from('users').where('email','=',body.email)
     .then(user =>{
         console.log(user);
-        if(bc.compareSync(body.password, user[0].PASSWORD)){
+        if(bc.compareSync(body.password, user[0].password)){
             res.json({
-                id: user[0].ID,
+                id: user[0].id,
                 status: 'success',
-                name:user[0].NAME,
-                email: user[0].EMAIL,
-                avatar: user[0].AVATAR
+                name:user[0].name,
+                email: user[0].email,
+                avatar: user[0].avatar
             });
         }
         else{
